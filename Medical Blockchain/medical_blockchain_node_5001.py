@@ -1,3 +1,5 @@
+# Medical Blockchain
+
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
@@ -74,17 +76,17 @@ class Blockchain:
             block_index +=1
         return True
     
-    def add_transaction(self, sender, receiver, amount):
-        self.transactions.append({'sender': sender,
-                                  'receiver': receiver,
-                                  'amount': amount}) # amount of coin
+    def add_transaction(self, patient, doctor, permission):
+        self.transactions.append({'patient': patient,
+                                  'doctor': doctor,
+                                  'permission': permission}) # authorization
         
         previous_block = self.get_previous_block()
         return previous_block['index'] + 1
     
     def add_node(self, address):  
         parsed_url = urlparse(address)    #address = "http://127.0.0.1:5000/"
-        self.nodes.add(parsed_url.netclo) #parsed_url = urlparse(address)
+        self.nodes.add(parsed_url.netloc) #parsed_url = urlparse(address)
                                           #parsed_url
                                           #Out[4]: ParseResult(scheme='http', netloc='127.0.0.1:5000', path='/', params='', query='', fragment='')
     def replace_chain(self):              #node = parsed_url.netloc
@@ -128,7 +130,7 @@ def mine_block():
     previous_proof = previous_block['proof']
     proof = blockchain.proof_of_work(previous_proof)
     previous_hash = blockchain.hash(previous_block)
-    blockchain.add_transaction(sender = node_address, receiver = 'Rachel', amount = 100)
+    blockchain.add_transaction(patient = node_address, doctor = 'Yourself', permission = 100)
     block = blockchain.create_block(proof, previous_hash)
     response = {'message': "Mine a block succesfully",
                 'index': block['index'],
@@ -157,10 +159,10 @@ def is_valid():
 @app.route('/add_transaction', methods=['POST'])
 def add_transaction():
     json = request.get_json() # when you send JSON to an endpoint using a POST or PUT request, you can retrieve it using get_json()
-    transaction_keys = ['sender', 'receiver', 'amount']
+    transaction_keys = ['patient', 'doctor', 'permission']
     if not all (key in json for key in transaction_keys):
         return 'Some elements of the transaction are misssing', 400
-    index = blockchain.add_transaction(json['sender'], json['receiver'], json['amount'])
+    index = blockchain.add_transaction(json['patient'], json['doctor'], json['permission'])
     response = {'message': f'This transaction will be added to Block {index}'}
     return jsonify(response), 201
 
@@ -176,7 +178,7 @@ def connect_node():
         return 'No node', 400
     for node in nodes:
         blockchain.add_node(node)
-    response = {'message': 'All nodes are now connected, the cryptocoin chain now contains the:', 
+    response = {'message': 'All nodes are now connected, the medical blockchain now contains the:', 
                 'total_nodes': list(blockchain.nodes)}
     return jsonify(response), 201
 
